@@ -1,3 +1,4 @@
+#! python3.11
 """
 --- Day 1: Calorie Counting ---
 Santa's reindeer typically eat regular reindeer food, but they need a lot of magical energy to deliver presents on Christmas. For that, their favorite snack is a special type of star fruit that only grows deep in the jungle. The Elves have brought you on their annual expedition to the grove where the fruit grows.
@@ -58,7 +59,7 @@ Both parts of this puzzle are complete! They provide two gold stars: **
 """
 
 
-test_data = ['1000', '2000', '3000', '', '4000', '', '5000', '6000', '', '7000', '8000', '9000', '', '10000' ]
+test_data = [1000, 2000, 3000, None, 4000, None, 5000, 6000, None, 7000, 8000, 9000, None, 10000]
 
 def parse_data(raw_data):
     elves = []
@@ -71,6 +72,12 @@ def parse_data(raw_data):
         else:
             elves.append(items)
             items = []
+
+    # Make sure we catch the last elf's items
+    if items:
+        elves.append(items)
+        items = []
+
     return elves
 
 
@@ -90,11 +97,10 @@ def main(raw_data):
 
 if __name__ == "__main__":
     input = r"D:\Projects\Advent_of_Code\2022\day_01_input.txt"
-
     raw_data = []
 
     with open(input, "r") as input_file:
-        raw_data = [ x.strip( ) for x in input_file.readlines( ) ]
+        raw_data = [int( num ) if num != '' else None for num in input_file.read( ).split('\n') ]
 
     main(test_data)
     main(raw_data)
