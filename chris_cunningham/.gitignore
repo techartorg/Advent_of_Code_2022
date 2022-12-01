@@ -1,2 +1,3 @@
 .aocConfig
-inputs/
+*.input
+.idea/
