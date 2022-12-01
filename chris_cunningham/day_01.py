@@ -12,6 +12,6 @@ with open("day_01.input", "r") as f:
 
         elves[elf_id].append(int(line))
 
-    sorted_sums = [*reversed(sorted(sum(i) for i in elves))]
+    sorted_sums = sorted((sum(i) for i in elves), reverse=True)
     print(f"Part One: {sorted_sums[0]}")
     print(f"Part Two: {sum(sorted_sums[:3])}")
