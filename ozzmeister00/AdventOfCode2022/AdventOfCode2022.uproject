@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{A51AD019-4D1D-511B-7A63-F0B1D5113983}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "AdventOfCode2022",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}
