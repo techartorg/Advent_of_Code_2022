@@ -46,11 +46,15 @@ class ProblemSolver(object):
                    'partTwo': []}
 
         for filePath in testDataFilePaths:
-            idToken = os.path.split(filePath)[0].split('_test')[-1]
+            idToken = os.path.split(filePath)[-1].split('_test')[-1]
             if idToken[0] == '1':
                 outDict['partOne'].append(self.loadDataFromFile(filePath))
             elif idToken[0] == '2':
                 outDict['partTwo'].append(self.loadDataFromFile(filePath))
+            else:
+                raise ValueError(f"Found a filePath that doesn't have a valid idToken {filePath}."
+                                 f"\nIDToken = {idToken}"
+                                 f"\nShould contain test1 or test2 after the day")
 
         return outDict
 
@@ -110,12 +114,17 @@ class ProblemSolver(object):
         elif part == 2:
             testData = self.testData['partTwo']
             answers = self.testDataAnswersPartTwo
+        else:
+            raise ValueError(f"Input part {part} is invalid")
 
         for i, test in enumerate(testData):
             processed = self.ProcessInput(data=test)
             result = algorithm(data=processed)
+            message = f"Test on data {processed} returned result {result}"
             if result != answers[i]:
-                raise Exception("Test on data {} returned result {}".format(processed, result))
+                raise Exception(message)
+            else:
+                print(message)
 
         return True
 

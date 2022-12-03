@@ -92,7 +92,7 @@ class Day01Solver(ProblemSolver):
 
         data.sort()
 
-        return sum(data[-4:-1])
+        return sum(data[-3:])
 
 
 if __name__ == '__main__':
