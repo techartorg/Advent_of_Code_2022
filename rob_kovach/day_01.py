@@ -84,8 +84,7 @@ those Elves carrying in total?
 
 from collections import defaultdict
 
-test_input = r'''
-1000
+test_input = r'''1000
 2000
 3000
 
@@ -98,7 +97,8 @@ test_input = r'''
 8000
 9000
 
-10000'''
+10000
+'''
 
 puzzle_input = open(__file__.replace('.py', '_input.txt')).read()
 
@@ -111,23 +111,7 @@ def part_one(input_):
             index += 1
             continue
         packs[index] += int(snack)
-    return max(packs.values())
+    return (max(packs.values()), sum(sorted(packs.values())[-3:]))
 
-def part_two(input_):
-    packs = defaultdict(int)
-    index = 0
-    snacks = input_.splitlines()
-    for snack in snacks:
-        if snack == '':
-            index += 1
-            continue
-        packs[index] += int(snack)
-    calories = sorted(packs.values())
-    calories.reverse()
-    return sum(calories[0:3])
-
-assert part_one(test_input) == 24000
-assert part_two(test_input) == 45000
-
-print(f'Part One: {part_one(puzzle_input)}')
-print(f'Part Two: {part_two(puzzle_input)}')
+assert part_one(test_input) == (24000, 45000)
+print(part_one(puzzle_input))
