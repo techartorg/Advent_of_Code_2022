@@ -6,16 +6,6 @@ ins_re = re.compile(r"move (\d+) from (\d+) to (\d+)")
 
 inputs = Path(__file__.replace(".py", ".input")).read_text()
 
-_test = """    [D]    
-[N] [C]    
-[Z] [M] [P]
- 1   2   3 
-
-move 1 from 2 to 1
-move 3 from 1 to 3
-move 2 from 2 to 1
-move 1 from 1 to 2"""
-
 stack_lines, instructions = inputs.split("\n\n", maxsplit=1)
 stack_lines = stack_lines.splitlines()
 instructions = [(grp[0], grp[1]-1, grp[2]-1) for i in instructions.splitlines() if (grp := [int(g) for g in ins_re.match(i).groups()])]
