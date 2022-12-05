@@ -21,16 +21,16 @@ for line in stack_lines[:-1]:
 stacks: list[list[str]] = [[*reversed(i)] for i in stacks]
 
 
-def solve(input_stacks: list[list[str]], part_two: bool = False) -> str:
+def solve(input_stacks: list[list[str]], reverse: bool = False) -> str:
     stacks = copy.deepcopy(input_stacks)
 
     for count, start, end in instructions:
         items = stacks[start][-count:]
         stacks[start] = stacks[start][:-count]
-        stacks[end].extend(items if part_two else reversed(items))
+        stacks[end].extend(reversed(items) if reverse else items)
 
     return "".join(i.pop() for i in stacks)
 
 
-print(f"Part One: {solve(stacks)}")
-print(f"Part One: {solve(stacks, part_two=True)}")
+print(f"Part One: {solve(stacks, reverse=True)}")
+print(f"Part Two: {solve(stacks)}")
