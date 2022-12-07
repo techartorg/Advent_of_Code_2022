@@ -59,5 +59,5 @@ part_one = sum(i.size for i in dir_map.values() if i.size <= MAX_DIR_SIZE)
 print(f"Part One: {part_one}")
 
 space_left = DISK_SPACE - root.size
-part_two = sorted((i for i in dir_map.values() if space_left + i.size >= NEEDED_SPACE), key=lambda x: x.size)[0]
+part_two = sorted(i.size for i in dir_map.values() if space_left + i.size >= NEEDED_SPACE)[0]
 print(f"Part Two: {part_two}")
