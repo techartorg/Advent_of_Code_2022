@@ -7,21 +7,15 @@ NEEDED_SPACE = 30000000
 inputs = Path(__file__.replace(".py", ".input")).read_text().splitlines()
 
 
-class File(object):
-    def __init__(self, name: str, size: int):
-        self.name = name
-        self.size = size
-
-
 class Directory(object):
     def __init__(self, name: str):
         self.name = name
-        self.files: list[File] = []
+        self.files_size: int = 0
         self.directories: list[Directory] = []
 
     @property
     def size(self) -> int:
-        return sum(i.size for i in self.files) + sum(i.size for i in self.directories)
+        return self.files_size + sum(i.size for i in self.directories)
 
 
 root = Directory("/")
@@ -53,7 +47,7 @@ for line in inputs[1:]:
             cwd.directories.append(new_dir)
 
         case[size, file_name]:
-            cwd.files.append(File(file_name, int(size)))
+            cwd.files_size += int(size)
 
 part_one = sum(i.size for i in dir_map.values() if i.size <= MAX_DIR_SIZE)
 print(f"Part One: {part_one}")
