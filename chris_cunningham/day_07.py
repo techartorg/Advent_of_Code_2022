@@ -10,7 +10,7 @@ inputs = Path(__file__.replace(".py", ".input")).read_text().splitlines()
 class Directory(object):
     def __init__(self, name: str):
         self.name = name
-        self.files_size: int = 0
+        self.files_size = 0
         self.directories: list[Directory] = []
 
     @property
@@ -53,5 +53,5 @@ part_one = sum(i.size for i in dir_map.values() if i.size <= MAX_DIR_SIZE)
 print(f"Part One: {part_one}")
 
 space_left = DISK_SPACE - root.size
-part_two = sorted(i.size for i in dir_map.values() if space_left + i.size >= NEEDED_SPACE)[0]
+part_two = min(i.size for i in dir_map.values() if space_left + i.size >= NEEDED_SPACE)
 print(f"Part Two: {part_two}")
