@@ -1,7 +1,6 @@
 from pathlib import Path
 from utils import window
 
-
 inputs = Path(__file__.replace(".py", ".input")).read_text()
 
 
