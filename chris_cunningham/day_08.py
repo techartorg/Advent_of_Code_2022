@@ -1,11 +1,7 @@
 from pathlib import Path
+from typing import Callable
 
 inputs = Path(__file__.replace(".py", ".input")).read_text().splitlines()
-_test = """30373
-25512
-65332
-33549
-35390""".splitlines()
 
 Grid = list[list[int]]
 Pt = tuple[int, int]
@@ -47,29 +43,18 @@ def calc_scenic_score(data: Grid, point: Pt) -> int:
     rows = len(data)
     cols = len(data[0])
 
-    right = 0
-    for c, i in enumerate(range(x + 1, cols)):
-        right = c + 1
-        if data[y][i] >= height:
-            break
+    def find(r: range, get_height: Callable[[int], int]) -> int:
+        v = 0
+        for c, i in enumerate(r):
+            v = c + 1
+            if get_height(i) >= height:
+                break
+        return v
 
-    left = 0
-    for c, i in enumerate(range(x - 1, -1, -1)):
-        left = c + 1
-        if data[y][i] >= height:
-            break
-
-    down = 0
-    for c, i in enumerate(range(y + 1, rows)):
-        down = c + 1
-        if data[i][x] >= height:
-            break
-
-    up = 0
-    for c, i in enumerate(range(y - 1, -1, -1)):
-        up = c + 1
-        if data[i][x] >= height:
-            break
+    right = find(range(x + 1, cols), lambda it: data[y][it])
+    left = find(range(x - 1, -1, -1), lambda it: data[y][it])
+    down = find(range(y + 1, rows), lambda it: data[it][x])
+    up = find(range(y - 1, -1, -1), lambda it: data[it][x])
 
     return right * left * down * up
 
