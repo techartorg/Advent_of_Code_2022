@@ -8,7 +8,7 @@ Point = tuple[int, int]
 Grid = dict[Point, int]
 directions = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
-grid = {(x, y): height for y, row in enumerate(inputs) for x, height in enumerate(row)}
+grid = {(x, y): int(height) for y, row in enumerate(inputs) for x, height in enumerate(row)}
 
 
 def ray(start: Point, direction: Point) -> Iterator[Point]:
