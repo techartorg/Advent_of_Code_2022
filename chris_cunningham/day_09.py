@@ -7,7 +7,7 @@ data = [(directions[s[0]], int(s[1])) for i in inputs if (s := i.split())]
 
 
 def sign(x: int) -> int:
-    return 0 if x == 0 else x // abs(x)
+    return 0 if not x else x // abs(x)
 
 
 def solve(count: int) -> int:
