@@ -1,202 +1,51 @@
 from pathlib import Path
 
 inputs = Path(__file__.replace(".py", ".input")).read_text().splitlines()
-_test = """addx 15
-addx -11
-addx 6
-addx -3
-addx 5
-addx -1
-addx -8
-addx 13
-addx 4
-noop
-addx -1
-addx 5
-addx -1
-addx 5
-addx -1
-addx 5
-addx -1
-addx 5
-addx -1
-addx -35
-addx 1
-addx 24
-addx -19
-addx 1
-addx 16
-addx -11
-noop
-noop
-addx 21
-addx -15
-noop
-noop
-addx -3
-addx 9
-addx 1
-addx -3
-addx 8
-addx 1
-addx 5
-noop
-noop
-noop
-noop
-noop
-addx -36
-noop
-addx 1
-addx 7
-noop
-noop
-noop
-addx 2
-addx 6
-noop
-noop
-noop
-noop
-noop
-addx 1
-noop
-noop
-addx 7
-addx 1
-noop
-addx -13
-addx 13
-addx 7
-noop
-addx 1
-addx -33
-noop
-noop
-noop
-addx 2
-noop
-noop
-noop
-addx 8
-noop
-addx -1
-addx 2
-addx 1
-noop
-addx 17
-addx -9
-addx 1
-addx 1
-addx -3
-addx 11
-noop
-noop
-addx 1
-noop
-addx 1
-noop
-noop
-addx -13
-addx -19
-addx 1
-addx 3
-addx 26
-addx -30
-addx 12
-addx -1
-addx 3
-addx 1
-noop
-noop
-noop
-addx -9
-addx 18
-addx 1
-addx 2
-noop
-noop
-addx 9
-noop
-noop
-noop
-addx -1
-addx 2
-addx -37
-addx 1
-addx 3
-noop
-addx 15
-addx -21
-addx 22
-addx -6
-addx 1
-noop
-addx 2
-addx 1
-noop
-addx -10
-noop
-noop
-addx 20
-addx 1
-addx 2
-addx 2
-addx -6
-addx -11
-noop
-noop
-noop""".splitlines()
+
+WIDTH = 40
+HEIGHT = 6
+CHECK_CYCLES = [20, 60, 100, 140, 180, 220]
 
 
-def part_one() -> int:
-    cycle = 1
-    signal = 1
+def solve() -> tuple[int, list[list[bool]]]:
+    cycle = 0
+    register = 1
+    strength = 0
 
-    check_cycles = [20, 60, 100, 140, 180, 220]
-    cycle_strengths = [0 for _ in range(len(check_cycles))]
+    lines = [[False for _ in range(WIDTH)] for _ in range(HEIGHT)]
 
     def next_cycle():
-        nonlocal cycle
+        nonlocal cycle, register, strength
+        x = cycle % WIDTH
+        y = cycle // WIDTH
 
-        for i, c in enumerate(check_cycles):
-            if cycle == c:
-                cycle_strengths[i] = signal * cycle
+        for i, c in enumerate(CHECK_CYCLES):
+            if cycle + 1 == c:
+                strength += register * (cycle + 1)
+
+        lines[y][x] = abs(x - register) < 2
 
         cycle += 1
 
     for i in inputs:
-        match i.split():
-            case ["noop"]:
-                next_cycle()
-            case ["addx", value]:
-                next_cycle()
-                next_cycle()
-                signal += int(value)
-    return sum(cycle_strengths)
+        next_cycle()
+
+        if len(inst := i.split()) == 2:
+            next_cycle()
+            register += int(inst[1])
+
+    return strength, lines
 
 
-def part_two():
-    cycle = 1
-    signal = 1
-    lines = []
-    current_line = [' ' for _ in range(40)]
-
-    def next_cycle():
-        nonlocal cycle, signal
-
-        cycle += 1
-
-    for i in inputs:
-        match i.split():
-            case ["noop"]:
-                next_cycle()
-            case ["addx", value]:
-                next_cycle()
-                next_cycle()
-                signal += int(value)
+def render(lines: list[list[bool]]):
+    print(f'┌{"".join("─" for _ in range(40))}┐')
+    for row in lines:
+        print(f'│{"".join("█" if i else " " for i in row)}│')
+    print(f'└{"".join("─" for _ in range(40))}┘')
 
 
-print(f"Part One: {part_one()}")
+part_one, part_two = solve()
+print(f"Part One: {part_one}")
 print("Part Two:")
-part_two()
+render(part_two)
+
