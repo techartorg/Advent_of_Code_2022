@@ -119,7 +119,7 @@ class Day04Solver(ProblemSolver):
                 count += 1
 
         return count
-    
+
 
 if __name__ == '__main__':
     day04 = Day04Solver()
