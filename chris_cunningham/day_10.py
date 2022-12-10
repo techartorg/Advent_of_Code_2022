@@ -38,10 +38,10 @@ def solve() -> tuple[int, list[list[bool]]]:
 
 
 def render(lines: list[list[bool]]):
-    print(f'┌{"".join("─" for _ in range(40))}┐')
+    print(f'┌{"".join("─" for _ in range(WIDTH))}┐')
     for row in lines:
         print(f'│{"".join("█" if i else " " for i in row)}│')
-    print(f'└{"".join("─" for _ in range(40))}┘')
+    print(f'└{"".join("─" for _ in range(WIDTH))}┘')
 
 
 part_one, part_two = solve()
