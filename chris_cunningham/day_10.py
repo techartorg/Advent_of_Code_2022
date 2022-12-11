@@ -1,10 +1,7 @@
 from pathlib import Path
 
 inputs = Path(__file__.replace(".py", ".input")).read_text().splitlines()
-
-WIDTH = 40
-HEIGHT = 6
-CHECK_CYCLES = [20, 60, 100, 140, 180, 220]
+WIDTH, HEIGHT = 40, 6
 
 
 def solve() -> tuple[int, list[list[bool]]]:
@@ -19,9 +16,8 @@ def solve() -> tuple[int, list[list[bool]]]:
         x = cycle % WIDTH
         y = cycle // WIDTH
 
-        for i, c in enumerate(CHECK_CYCLES):
-            if cycle + 1 == c:
-                strength += register * (cycle + 1)
+        if (cycle + 1) % 40 == 20:
+            strength += register * (cycle + 1)
 
         lines[y][x] = abs(x - register) < 2
 
@@ -41,11 +37,10 @@ def render(lines: list[list[bool]]):
     print(f'┌{"".join("─" for _ in range(WIDTH))}┐')
     for row in lines:
         print(f'│{"".join("█" if i else " " for i in row)}│')
-    print(f'└{"".join("─" for _ in range(WIDTH))}┘')
+    print(f'└{"".join("─" for _ in range(WIDTH))}')
 
 
 part_one, part_two = solve()
 print(f"Part One: {part_one}")
 print("Part Two:")
 render(part_two)
-
