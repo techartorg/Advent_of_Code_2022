@@ -1,10 +1,14 @@
 from pathlib import Path
 from operator import add, mul
 from collections import deque
+import math
+
+inputs = Path(__file__.replace(".py", ".input")).read_text().split("\n\n")
 
 P1_ROUNDS = 20
 P2_ROUNDS = 10_000
 OPS = {'+': add, '*': mul}
+
 
 class Monkey(object):
     def __init__(self, data: str):
@@ -19,19 +23,19 @@ class Monkey(object):
                     self.items = deque([int(i) for i in items.replace(',', '').split()])
 
                 case["Operation", op_val]:
-                    _, _, lhs_s, op, rhs_s = op_val.split()
+                    lhs_s, op, rhs_s = op_val.split()[2:]
 
                     def f(w: int):
                         nonlocal lhs_s, op, rhs_s
                         lhs = w if lhs_s == "old" else int(lhs_s)
                         rhs = w if rhs_s == "old" else int(rhs_s)
-                        self.inspected += 1
                         return OPS[op](lhs, rhs)
 
                     self.operation = f
 
                 case["Test", test_val]:
-                    self.test = lambda w: self._true if w % int(test_val.split()[-1]) == 0 else self._false
+                    self.divisor = int(test_val.split()[-1])
+                    self.test = lambda w: self._true if w % self.divisor == 0 else self._false
 
                 case["If true", t_val]:
                     self._true = int(t_val.split()[-1])
@@ -42,50 +46,34 @@ class Monkey(object):
     def __repr__(self):
         return f"id: {self.id}, Inspected: {self.inspected} items: {self.items}"
 
-inputs = Path(__file__.replace(".py", ".input")).read_text().split("\n\n")
-_test = """Monkey 0:
-  Starting items: 79, 98
-  Operation: new = old * 19
-  Test: divisible by 23
-    If true: throw to monkey 2
-    If false: throw to monkey 3
+    def inspect(self, div_3: bool, lcm: int | None = None) -> tuple[int, int]:
+        self.inspected += 1
+        item = self.items.popleft()
+        item = self.operation(item)
 
-Monkey 1:
-  Starting items: 54, 65, 75, 74
-  Operation: new = old + 6
-  Test: divisible by 19
-    If true: throw to monkey 2
-    If false: throw to monkey 0
+        if div_3:
+            item = item // 3
 
-Monkey 2:
-  Starting items: 79, 60, 97
-  Operation: new = old * old
-  Test: divisible by 13
-    If true: throw to monkey 1
-    If false: throw to monkey 3
+        if lcm:
+            item %= lcm
 
-Monkey 3:
-  Starting items: 74
-  Operation: new = old + 3
-  Test: divisible by 17
-    If true: throw to monkey 0
-    If false: throw to monkey 1""".split("\n\n")
+        target = self.test(item)
+        return target, item
+
 
 def solve(part_two: bool) -> int:
-    puzzle = [Monkey(i) for i in inputs]
+    monkeys = [Monkey(i) for i in inputs]
+    lcm = math.lcm(*[m.divisor for m in monkeys]) if part_two else None
 
-    for i in range(P2_ROUNDS if part_two else P1_ROUNDS):
-        for m in puzzle:
+    for _ in range(P2_ROUNDS if part_two else P1_ROUNDS):
+        for m in monkeys:
             while len(m.items):
-                item = m.items.popleft()
-                item = m.operation(item)
-                if not part_two:
-                    item = item // 3
-                target = m.test(item)
-                puzzle[target].items.append(item)
+                target, item = m.inspect(not part_two, lcm)
+                monkeys[target].items.append(item)
 
-    puzzle = sorted(puzzle, key=lambda x: x.inspected, reverse=True)
-    return puzzle[0].inspected * puzzle[1].inspected
+    monkeys = sorted(monkeys, key=lambda x: x.inspected, reverse=True)
+    return monkeys[0].inspected * monkeys[1].inspected
+
 
 print(f"Part One: {solve(False)}")
 print(f"Part Two: {solve(True)}")
