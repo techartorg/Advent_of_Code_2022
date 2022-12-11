@@ -72,7 +72,7 @@ def solve(part_two: bool) -> int:
                 monkeys[target].items.append(item)
 
     monkeys = sorted(monkeys, key=lambda x: x.inspected, reverse=True)
-    return monkeys[0].inspected * monkeys[1].inspected
+    return math.prod(i.inspected for i in monkeys[:2])
 
 
 print(f"Part One: {solve(False)}")
