@@ -71,20 +71,21 @@ Monkey 3:
     If true: throw to monkey 0
     If false: throw to monkey 1""".split("\n\n")
 
-puzzle = [Monkey(i) for i in _test]
+def solve(part_two: bool) -> int:
+    puzzle = [Monkey(i) for i in inputs]
 
-for i in range(P2_ROUNDS):
-    if i == P1_ROUNDS:
-        part_one = sorted(puzzle, key=lambda x: x.inspected, reverse=True)
-        print(f"Part One: {part_one[0].inspected * part_one[1].inspected}")
+    for i in range(P2_ROUNDS if part_two else P1_ROUNDS):
+        for m in puzzle:
+            while len(m.items):
+                item = m.items.popleft()
+                item = m.operation(item)
+                if not part_two:
+                    item = item // 3
+                target = m.test(item)
+                puzzle[target].items.append(item)
 
-    for m in puzzle:
-        while len(m.items):
-            item = m.items.popleft()
-            item = m.operation(item)
-            item = item // 3
-            target = m.test(item)
-            puzzle[target].items.append(item)
+    puzzle = sorted(puzzle, key=lambda x: x.inspected, reverse=True)
+    return puzzle[0].inspected * puzzle[1].inspected
 
-puzzle = sorted(puzzle, key=lambda x: x.inspected, reverse=True)
-print(f"Part Two: {puzzle[0].inspected * puzzle[1].inspected}")
+print(f"Part One: {solve(False)}")
+print(f"Part Two: {solve(True)}")
