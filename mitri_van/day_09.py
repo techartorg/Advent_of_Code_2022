@@ -682,7 +682,13 @@ Now, the tail (9) visits 36 positions (including s) at least once:
 .........########.........
 Simulate your complete series of motions on a larger rope with ten knots. How many positions does the tail of the rope visit at least once?
 
+
+Your puzzle answer was 2352.
+
+Both parts of this puzzle are complete! They provide two gold stars: **
+
 """
+import math
 
 test_data = ['R4',
 			 'U4',
@@ -762,45 +768,49 @@ class Rope():
 
 		self._moves.append(self.get_position())
 
-
 	def move_child(self, vector, child_move = False):
 		direction, magnitude = vector
-		child_x, child_y = self.child.get_position()
 
-		delta_x = self.x - child_x
-		delta_y = self.y - child_y
+		delta_x = self.x - self.child.x
+		delta_y = self.y - self.child.y
 
-		# # Take a step to stay close
-		# if abs(delta_x) == 2:
-			# self.child.x = self.child.x + int(delta_x/2)
-
-		# if abs(delta_y) == 2:
-			# self.child.y = self.child.y + int(delta_y/2)
-
+		# Head and tail are touching
 		if [abs(delta_x), abs(delta_y)] in [[0,0], [0,1], [1,1], [1,0]]:
-			pass # Do nothing. Parent is in the way
-		else:
-			if abs(delta_x) == 2 and abs(delta_y) == 2:
+			pass # Do nothing.
+
+		# Head two steps directly up, down, left or right
+		elif [abs(delta_x), abs(delta_y)] in [[0,2], [2,0]]:
+			# Take a step to stay close
+			if abs(delta_x) == 2:
 				self.child.x = self.child.x + int(delta_x/2)
+
+			else: # abs(delta_y) == 2
 				self.child.y = self.child.y + int(delta_y/2)
 
+		# Head and tail AREN'T touching and aren't in the same row or column
+		else:
+			if abs(delta_x) == 2 and abs(delta_y) == 2:
+				self.child.x = math.ceil((self.x + self.child.x)/2)
+				self.child.y = math.ceil((self.y + self.child.y)/2)
 			else:
-				if abs(delta_x) > 1:
-					if direction == MOVE_LEFT:
-						self.child.x = self.x + 1
-					else:
-						self.child.x = self.x - 1
-					self.child.y = self.child.y + delta_y
+				if self.x != self.child.x  and self.y != self.child.y:
+					if abs(delta_x) > 1:
+						if direction == MOVE_LEFT:
+							self.child.x = math.ceil((self.x + self.child.x)/2)
+						else:
+							self.child.x = math.ceil((self.x + self.child.x)/2)
+						self.child.y = self.child.y + delta_y
 
-				elif abs(delta_y) > 1:
-					self.child.x = self.child.x + delta_x
-					if direction == MOVE_DOWN:
-						self.child.y = self.y + 1
-					else:
-						self.child.y = self.y - 1
+					elif abs(delta_y) > 1:
+						self.child.x = self.child.x + delta_x
+						if direction == MOVE_DOWN:
+							self.child.y = math.ceil((self.y + self.child.y)/2)
+						else:
+							self.child.y = math.ceil((self.y + self.child.y)/2)
 
 		self.child._moves.append(self.child.get_position())
 
+		# Move child segments
 		if self.child and self.child.child:
 			next_dir = ''
 			if delta_x > 0:
@@ -819,7 +829,6 @@ class Rope():
 			self.child.move_child([next_dir, next_mag], child_move = True)
 
 
-
 def parse_data(raw_data):
 	data = [[x[0], int(x[1:])] for x in raw_data]
 	return data
@@ -832,114 +841,56 @@ def _get_screen_coord(move, grid_dimension):
 	return x, y
 
 
-def draw(rope_obj):
-	data = rope_obj._moves
-	width = 190 #max([x[0] for x in data]) + 1
-	height = 190 #max([x[1] for x in data]) + 1
+def draw(rope_obj, height = 25, width = 25, all_steps = False):
+	render_grid = []
+	data = rope_obj[0]._moves
 
-	grid = []
-	grid_dimension = max(width, height)
-	row = [0] * grid_dimension * 2
-
-	for i in range(0, grid_dimension*2):
-		grid.append(row.copy())
+	if not all_steps:
+		render_grid = _make_grid(height, width)
 
 	# Populate the grid
 	for move_num,i in enumerate(data):
-		parent_x = rope_obj.parent._moves[move_num][0] + int(grid_dimension / 2)
-		parent_y = rope_obj.parent._moves[move_num][1] + int(grid_dimension / 2)
-		grid[parent_y][parent_x] = 'H'
+		if all_steps: render_grid = _make_grid(height, width)
+		for obj in rope_obj:
+			obj_x = obj._moves[move_num][0] + width
+			obj_y = obj._moves[move_num][1] + height
+			render_grid[obj_y][obj_x] = obj.name
 
-		x_pos = i[0] + int(grid_dimension / 2)
-		y_pos = i[1] + int(grid_dimension / 2)
-		grid[y_pos][x_pos] = 1
+		if all_steps:
+			temp_grid = render_grid.copy()
+			temp_grid.reverse()
+			for row in temp_grid:
+				output = ''.join([x if type(x) != int else '.' for x in row])
+				print(output)
+			print()
 
-		# temp_grid = grid.copy()
-		# temp_grid.reverse()
-		# for row in temp_grid:
-			# print(''.join(row))
-		# print()
-
-	# temp_grid = grid.copy()
-	# temp_grid.reverse()
-	# for row in temp_grid:
-		# print(''.join(row))
-	# print()
+	if not all_steps:
+		temp_grid = render_grid.copy()
+		temp_grid.reverse()
+		for row in temp_grid:
+			output = ''.join([x if type(x) != int else '.' for x in row])
+			print(output)
+		print()
 
 
-def _make_grid(dimension = 50):
+def _make_grid(width, height):
 	grid = []
-	grid_dimension = dimension
-	row = ['.'] * grid_dimension * 2
+	grid_dimension = max(width, height)
+	row = ['.'] * (grid_dimension * 2 + 1)
 
-	for i in range(0, grid_dimension*2):
+	grid.append(row.copy())
+	for i in range(0, grid_dimension * 2):
 		grid.append(row.copy())
+
+	# Draw the start
+	grid[height][width] = 's'
 
 	return grid
 
 
-def draw2(rope):
-	data = rope[0]._moves
-	width = 50#190 #max([x[0] for x in data]) + 1
-	height = 20#190 #max([x[1] for x in data]) + 1
-
-	grid = []
-	grid_dimension = 26#max(width, height)
-	row = ['.'] * grid_dimension * 2
-
-	for i in range(0, grid_dimension*2):
-		grid.append(row.copy())
-
-	rope.reverse()
-
-	# Populate the grid
-	for move_num,i in enumerate(data):
-		temp_grid = _make_grid()
-		temp_grid[13][13] = 's'
-		for rope_segment in rope:
-			x, y = _get_screen_coord(rope_segment._moves[move_num], grid_dimension)
-			temp_grid[y][x] = rope_segment.name
-
-		temp_grid.reverse()
-		for row in temp_grid:
-			print(''.join(row))
-		print()
-
-	# temp_grid = grid.copy()
-	# temp_grid.reverse()
-	# for row in temp_grid:
-		# print(''.join(row))
-	# print()
-
-def draw3(rope_segment):
-	data = rope_segment._moves
-	width = 50#190 #max([x[0] for x in data]) + 1
-	height = 20#190 #max([x[1] for x in data]) + 1
-
-	grid = []
-	grid_dimension = 50#max(width, height)
-	row = ['.'] * grid_dimension * 2
-
-	for i in range(0, grid_dimension*2):
-		grid.append(row.copy())
-
-	temp_grid = _make_grid(grid_dimension)
-	temp_grid[25][25] = 's'
-	temp_grid.reverse()
-
-	# Populate the grid
-	for move_num,i in enumerate(data):
-		x, y = _get_screen_coord(rope_segment._moves[move_num], grid_dimension)
-		temp_grid[y][x] = '#'
-
-		for row in temp_grid:
-			print(''.join(row))
-		print()
-
-
-def part_one(data):
-	rope_head = Rope('rope')
-	rope_tail = Rope('tail',parent = rope_head)
+def part_one(data, height = 5, width = 5, render = True):
+	rope_head = Rope('H')
+	rope_tail = Rope('T',parent = rope_head)
 	rope_head.child = rope_tail
 
 	for vector in data:
@@ -951,13 +902,16 @@ def part_one(data):
 		# print(f'[{vector[0]} {vector[1]}]:\t{rope_head.get_position()}')
 		# print(f'\t\t{rope_tail.get_position()}\n')
 
-	draw(rope_tail)
+	if render:
+		# draw([rope_tail, rope_head], 5, 5, all_steps = True)
+		rope_tail.name = '#'
+		draw([rope_tail], height, width)
 
 	unique_positions = len([list(x) for x in set(tuple(x) for x in rope_tail._moves)])
 	print(f'Tail has visited {unique_positions} positions at least once')
 
 
-def part_two(data):
+def part_two(data, height = 10, width = 10, render = True):
 	rope_head = Rope('H')
 	rope_knot1 = Rope('1', parent = rope_head)
 	rope_knot2 = Rope('2', parent = rope_knot1)
@@ -997,8 +951,9 @@ def part_two(data):
 			# print(f'\t\t{rope_knot9.get_position()} - T')
 			# print()
 
-	# draw2(rope)
-	# draw3(rope_knot9)
+	if render:
+		rope.reverse()
+		draw(rope, height, width, all_steps = True)
 
 	unique_positions = len([list(x) for x in set(tuple(x) for x in rope_knot9._moves)])
 	print(f'Tail has visited {unique_positions} positions at least once')
@@ -1007,8 +962,8 @@ def part_two(data):
 def main(raw_data):
 	data = parse_data(raw_data)
 
-	# part_one(data)
-	part_two(data)
+	part_one(data, render = False)
+	part_two(data, render = False)
 
 
 
@@ -1019,7 +974,7 @@ if __name__ == "__main__":
 	with open(input, "r") as input_file:
 		raw_data = [line.replace(' ','').strip() for line in input_file.readlines()]
 
-	# main(test_data)
+	# part_one(parse_data(test_data))
 	# part_two(test_data_1)
-	# part_two(test_data_2)
+	# part_two(test_data_2, height = 15, width = 15)
 	main(raw_data)
