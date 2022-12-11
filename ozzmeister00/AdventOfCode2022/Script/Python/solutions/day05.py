@@ -52,7 +52,7 @@ The Elves just need to know which crate will end up on top of each stack; in thi
 
 After the rearrangement procedure completes, what crate ends up on top of each stack?
 """
-import collections
+import copy
 
 from utils.solver import ProblemSolver
 
@@ -182,7 +182,8 @@ class Day05Solver(ProblemSolver):
         :returns: The solution to today's challenge
         """
         if not data:
-            data = self.processed
+            # copy the data so that we don't mess with the base processed data
+            data = copy.deepcopy(self.processed)
 
         cargoBay, moveSet = data
         for quantity, source, destination in moveSet:
@@ -196,17 +197,13 @@ class Day05Solver(ProblemSolver):
         :param data:
         :returns: The solution to part two of today's challenge
         """
+        # copy the data so that we don't mess with the base processed data
         if not data:
-            data = self.processed
+            data = copy.deepcopy(self.processed)
 
         cargoBay, moveSet = data
         for quantity, source, destination in moveSet:
-            try:
                 cargoBay.moveBatch(quantity, source, destination)
-            except Exception as e:
-                print(quantity, source, destination, '\n', cargoBay)
-                print(e)
-                break
 
         return ''.join(cargoBay.tops())
 
