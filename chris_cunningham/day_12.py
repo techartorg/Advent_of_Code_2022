@@ -50,7 +50,7 @@ class Grid(object):
                 yield nx, ny
 
 
-def multi_bfs(grid: Grid, start: Pt, ends: list[Pt]) -> list[list[Pt]]:
+def bfs(grid: Grid, start: Pt, ends: list[Pt]) -> list[list[Pt]]:
     ends = set(ends)
     open_nodes = deque([start])
     closed_nodes = {start}
@@ -92,12 +92,10 @@ def retrace_path(came_from: dict[Pt, Pt | None], start: Pt, end: Pt) -> list[Pt]
 
 def solve() -> tuple[int, int]:
     grid = Grid(inputs)
-    p1 = len(multi_bfs(grid, grid.end, [grid.start])[0])
-
-    starts = [k for k, v in grid.grid.items() if v == 0]
-    p2 = min(len(i) for i in multi_bfs(grid, grid.end, starts))
-
-    return p1, p2
+    starts = [k for k, v in grid.grid.items() if v == 0 and k != grid.start]
+    starts.insert(0, grid.start)
+    p1_path, *paths = bfs(grid, grid.end, starts)
+    return len(p1_path), min(len(i) for i in paths)
 
 
 part_one, part_two = solve()
