@@ -62,7 +62,11 @@ def multi_bfs(grid: Grid, start: Pt, ends: list[Pt]) -> list[list[Pt]]:
         current = open_nodes.popleft()
 
         if current in ends:
+            ends.remove(current)
             paths.append(retrace_path(came_from, start, current))
+
+            if not ends:
+                break
 
         for n in grid.get_neighbours(current):
             if n in closed_nodes:
