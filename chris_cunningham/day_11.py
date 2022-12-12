@@ -52,7 +52,7 @@ class Monkey(object):
         item = self.operation(item)
 
         if div_3:
-            item = item // 3
+            item //= 3
 
         if lcm:
             item %= lcm
