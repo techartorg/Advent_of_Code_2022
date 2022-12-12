@@ -42,25 +42,27 @@ class Grid(object):
     def get_neighbours(self, value: Pt) -> Iterator[Pt]:
         x, y = value
         sx, sy = self.size
-        height = self.get(value) + 1
+        height = self.get(value)
 
         for dx, dy in self.directions:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < sx and 0 <= ny < sy and self.get((nx, ny)) <= height:
+            if 0 <= nx < sx and 0 <= ny < sy and height - self.get((nx, ny)) <= 1:
                 yield nx, ny
 
 
-def bfs(grid: Grid, start: Pt, end: Pt) -> list[Pt] | None:
+def multi_bfs(grid: Grid, start: Pt, ends: list[Pt]) -> list[list[Pt]]:
+    ends = set(ends)
     open_nodes = deque([start])
     closed_nodes = {start}
     came_from = {start: None}
-    found = False
+
+    paths = []
 
     while open_nodes:
         current = open_nodes.popleft()
-        if current == end:
-            found = True
-            break
+
+        if current in ends:
+            paths.append(retrace_path(came_from, start, current))
 
         for n in grid.get_neighbours(current):
             if n in closed_nodes:
@@ -70,31 +72,28 @@ def bfs(grid: Grid, start: Pt, end: Pt) -> list[Pt] | None:
             closed_nodes.add(n)
             came_from[n] = current
 
-    if not found:
-        return None
+    return paths
 
-    # Retrace path
+
+def retrace_path(came_from: dict[Pt, Pt | None], start: Pt, end: Pt) -> list[Pt]:
     current = end
     path = []
+
     while current != start:
         path.append(current)
-        if current not in came_from:
-            break
-
         current = came_from[current]
 
-    path.reverse()
     return path
 
 
 def solve() -> tuple[int, int]:
     grid = Grid(inputs)
-    p1 = len(bfs(grid, grid.start, grid.end))
+    p1 = len(multi_bfs(grid, grid.end, [grid.start])[0])
 
     starts = [k for k, v in grid.grid.items() if v == 0]
-    paths = [r for i in starts if (r := bfs(grid, i, grid.end))]
+    p2 = min(len(i) for i in multi_bfs(grid, grid.end, starts))
 
-    return p1, min(len(i) for i in paths)
+    return p1, p2
 
 
 part_one, part_two = solve()
