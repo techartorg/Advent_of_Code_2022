@@ -10,14 +10,14 @@ class Grid(object):
     directions = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
     def __init__(self, s: str):
-        self.grid: dict[Pt, int] = {}
+        self.data: dict[Pt, int] = {}
         self.start = (0, 0)
         self.end = (0, 0)
 
         x, y = 0, 0
         for y, row in enumerate(s.splitlines()):
             for x, h in enumerate(row):
-                self.grid[(x, y)] = self.parse_height(h)
+                self.data[(x, y)] = self._parse_height(h)
                 if h == 'S':
                     self.start = (x, y)
                 if h == 'E':
@@ -25,11 +25,8 @@ class Grid(object):
 
         self.size = (x + 1, y + 1)
 
-    def __repr__(self):
-        return f"Grid(size = {self.size})"
-
     @staticmethod
-    def parse_height(s: str) -> int:
+    def _parse_height(s: str) -> int:
         zero = ord('a')
         match s:
             case 'S': return 0
@@ -37,7 +34,7 @@ class Grid(object):
             case other: return ord(other) - zero
 
     def get(self, value: Pt) -> int:
-        return self.grid[value]
+        return self.data[value]
 
     def get_neighbours(self, value: Pt) -> Iterator[Pt]:
         x, y = value
@@ -92,10 +89,9 @@ def retrace_path(came_from: dict[Pt, Pt | None], start: Pt, end: Pt) -> list[Pt]
 
 def solve() -> tuple[int, int]:
     grid = Grid(inputs)
-    starts = [k for k, v in grid.grid.items() if v == 0 and k != grid.start]
-    starts.insert(0, grid.start)
-    p1_path, *paths = bfs(grid, grid.end, starts)
-    return len(p1_path), min(len(i) for i in paths)
+    starts = [k for k, v in grid.data.items() if v == 0]
+    paths = bfs(grid, grid.end, starts)
+    return len(next(i for i in paths if i[0] == grid.start)), min(len(i) for i in paths)
 
 
 part_one, part_two = solve()
