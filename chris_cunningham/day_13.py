@@ -18,15 +18,6 @@ def compare(lhs: int | list, rhs: int | list) -> int:
             return compare(lhs, [rhs])
 
         case list(), list():
-            if len(lhs) == len(rhs) == 0:
-                return 0
-
-            if len(lhs) == 0:
-                return -1
-
-            if len(rhs) == 0:
-                return 1
-
             for l, r in zip(lhs, rhs):
                 if (result := compare(l, r)) != 0:
                     return result
