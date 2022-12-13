@@ -1,13 +1,10 @@
 from pathlib import Path
+from utils import sign
 
 inputs = Path(__file__.replace(".py", ".input")).read_text().splitlines()
 
 directions = {'L': -1, 'R': 1, "U": 1j, "D": -1j}
 data = [(directions[s[0]], int(s[1])) for i in inputs if (s := i.split())]
-
-
-def sign(x: int) -> int:
-    return 0 if not x else x // abs(x)
 
 
 def solve(count: int) -> int:
