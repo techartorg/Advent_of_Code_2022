@@ -18,9 +18,6 @@ class Point(NamedTuple):
     def __sub__(self, other: Point) -> Point:
         return Point(*[l - r for l, r in zip(self, other)])
 
-    def __mul__(self, other: Point) -> Point:
-        return Point(*[l * r for l, r in zip(self, other)])
-
     @property
     def neighbours(self) -> Iterator[Point]:
         for d in [Point(0, 1, 0), Point(0, -1, 0), Point(-1, 0, 0), Point(1, 0, 0), Point(0, 0, 1), Point(0, 0, -1)]:
