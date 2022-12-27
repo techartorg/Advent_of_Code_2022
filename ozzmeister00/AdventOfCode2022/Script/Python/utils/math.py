@@ -39,6 +39,7 @@ def product(iterable):
     return functools.reduce(operator.mul, iterable, 1)
 
 
+
 class TwoD(list):
     """
     A TwoD object to make it easier to access and multiply 2-length lists of numbers
@@ -66,17 +67,26 @@ class TwoD(list):
         else:
             return self.__class__([self.x + other, self.y + other], defaultClass=self.defaultClass)
 
+    def __iadd__(self, other):
+        return self.__add__(other)
+
     def __sub__(self, other):
         if isinstance(other, TwoD):
             return self.__class__([self.x - other.x, self.y - other.y], defaultClass=self.defaultClass)
         else:
             return self.__class__([self.x - other, self.y - other], defaultClass=self.defaultClass)
 
+    def __isub__(self, other):
+        return self.__sub__(other)
+
     def __mul__(self, other):
         if isinstance(other, self.__class__):
             return self.__class__([self.x * other.x, self.y * other.y], defaultClass=self.defaultClass)
         if isinstance(other, int) or isinstance(other, float):
             return self.__class__([self.x * other, self.y * other], defaultClass=self.defaultClass)
+
+    def __imul__(self, other):
+        return self.__mul__(other)
 
     def _div(self, other):
         if isinstance(other, self.__class__):
@@ -87,7 +97,13 @@ class TwoD(list):
     def __truediv__(self, other):
         return self._div(other)
 
+    def __itruediv__(self, other):
+        return self._div(other)
+
     def __divmod__(self, other):
+        return self._div(other)
+
+    def __idiv__(self, other):
         return self._div(other)
 
     def __eq__(self, other):
@@ -134,14 +150,35 @@ class Number2(TwoD):
     """
     def distance(self, other):
         """
-        :param Int2 or Float2 other: the other point to which we want the distance
+        :param Number2 other: the other point to which we want the distance
 
         :return float: the distance from this point to the input point
         """
-        if not issubclass(Number2, other.__class__):
+        if not issubclass(other.__class__, Number2):
             raise ValueError("{} is not a subclass of Number2 and its distance cannot be computed".format(other.__class__))
 
         return math.sqrt(((other.x - self.x) ** 2) + ((other.y - self.y) ** 2))
+
+    def direction(self, other):
+        """
+
+        :param Number2 other: the other point to which we want to determine the direction
+
+        :return Number2: the direction from this point to the other point
+        """
+        return (other - self).normalize()
+
+    def normalize(self):
+        """
+        :return Number2: this number, normalized to its length
+        """
+        return self / self.length()
+
+    def length(self):
+        """
+        :return float: the distance from 0,0 to this point
+        """
+        return self.__class__((0, 0)).distance(self)
 
 
 class Float2(Number2):
@@ -158,6 +195,19 @@ class Int2(Number2):
     """
     def __init__(self, inV=None, defaultClass=int):
         super(Int2, self).__init__(inV, defaultClass=int)
+
+    def __truediv__(self, other):
+        # if an int2 is divided by a float, return the ceil of that division
+        if isinstance(other, float):
+            x = self.x / other
+            y = self.y / other
+
+            x = math.ceil(x) if x > 0 else math.floor(x)
+            y = math.ceil(y) if y > 0 else math.floor(y)
+
+            return Int2((x, y))
+
+        return super(Int2, self).__truediv__(other)
 
     @property
     def x(self):

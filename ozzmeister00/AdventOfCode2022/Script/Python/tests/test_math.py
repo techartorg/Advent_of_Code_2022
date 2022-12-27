@@ -117,6 +117,37 @@ class TestTwoD(TestCase):
         self.assertEqual(oneD, oneDExpected,
                          msg="For some reason {} does not equal {}".format(oneD, oneDExpected))
 
+    def test_length(self):
+        a = utils.math.Float2((0.0, 1.0))
+        self.assertEqual(a.length(), 1.0)
+
+    def test_distance(self):
+        a = utils.math.Float2((1.0, 1.0))
+        b = utils.math.Float2((1.0, 2.0))
+        self.assertEqual(a.distance(b), 1.0)
+
+    def test_normalize(self):
+        a = utils.math.Float2((1.0, 2.0)).normalize()
+        expected = [0.4472135954999579, 0.8944271909999159]
+        self.assertEqual(a[0], expected[0])
+        self.assertEqual(a[1], expected[1])
+
+    def test_direction(self):
+        a = utils.math.Float2((1.0, 0.0))
+        b = utils.math.Float2((0.0, 0.0))
+        aToB = utils.math.Float2((-1.0, 0.0))
+        bToA = utils.math.Float2((1.0, 0.0))
+
+        self.assertEqual(a.direction(b), aToB)
+        self.assertEqual(b.direction(a), bToA)
+
+        a = utils.math.Int2((0, 0))
+        b = utils.math.Int2((1, 1))
+        c = utils.math.Int2((-1, -1))
+
+        self.assertEqual(a.direction(b), b)
+        self.assertEqual(b.direction(a), c)
+
 
 class TestGrid2D(TestCase):
     def setUp(self):

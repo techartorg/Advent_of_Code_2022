@@ -242,29 +242,139 @@ So, there are 13 positions the tail visited at least once.
 
 Simulate your complete hypothetical series of motions. How many positions does the tail of the rope visit at least once?
 """
+import copy
+import math
 
+from utils.math import Grid2D, Int2
 from utils.solver import ProblemSolver
+
+
+class Rope(list):
+    def __init__(self, length=2, start=None):
+        """
+        :param int length: how long the rope is, defaults to 2
+        :param Int2 start: where the starting position of the rope is
+        """
+        super(Rope, self).__init__()
+        if not start:
+            start = Int2((0, 0))
+        for i in range(length):
+            self.append(copy.copy(start))
+
+    @property
+    def head(self):
+        return self[0]
+
+    @head.setter
+    def head(self, coords):
+        """
+        :param Int2 coords: the new position of the head
+        """
+        self[0] = coords
+        # have to actually simulate this motion, since looking up the position of the next coordinate from
+        # the previous one doesn't exactly work with longer chains
+        for i, coord in enumerate(self[1:], start=1):
+            head = self[i-1]
+            if math.floor(head.distance(coord)) >= 2:
+                self[i] += self[i].direction(head)
+
+    @property
+    def tail(self):
+        """
+        :return Int2: position of the tail
+        """
+        return self[-1]
+
+    @tail.setter
+    def tail(self, value):
+        raise NotImplementedError("Rope tail coordinates are not assignable")
+
+
+class RopeGrid(Grid2D):
+    def __init__(self, width, rope):
+        data = '.' * (width * width)
+        super(RopeGrid, self).__init__(width, data)
+        self.rope = rope
+
+    def moveRope(self, direction):
+        self.rope.head += direction
+
+        self[self.rope.tail] = 1
+
+    def displayRope(self):
+        outString = '\n'
+        for y in range(self.height - 1, -1, -1):
+            for x in range(self.width):
+                curr = Int2((x,y))
+                if curr == self.rope.head:
+                    outString += 'H'
+                elif curr == self.rope.tail:
+                    outString += 'T'
+                elif curr in self.rope:
+                    outString += str(self.rope.index(curr))
+                else:
+                    outString += '.'
+            outString += '\n'
+
+        return outString
 
 
 class Day09Solver(ProblemSolver):
     def __init__(self):
         super(Day09Solver, self).__init__(9)
 
-        self.testDataPartOne = {}
-        self.testDataPartTwo = {}
+        self.testDataAnswersPartOne = [13]
+        self.testDataAnswersPartTwo = [1, 36]
 
     def ProcessInput(self, data=None):
         """
-        
-        :param data:
-        :returns: processed data for today's challenge
+        Take the input data, and figure out 1 how big the grid should be and 2 the move instructions
+        turned into int2
+        :param str data:
+        :returns int, list[Int2]:
         """
         if not data:
             data = self.rawData
 
-        processed = None
+        pointer = Int2((0,0))
+        maxX = 0
+        maxY = 0
+        minX = 10000000000
+        minY = 10000000000
+        instructions = []
+        for line in data.splitlines(keepends=False):
+            directionString, distance = line.split(' ')
+            distance = int(distance)
+            # figure out which direction we should be going based off the string
+            match directionString:
+                case 'R':
+                    direction = Grid2D.Right
+                case 'L':
+                    direction = Grid2D.Left
+                case 'U':
+                    direction = Grid2D.Up
+                case 'D':
+                    direction = Grid2D.Down
+                case _:
+                    raise ValueError(f"Invalid direction string {directionString}")
 
-        return processed
+            # then create discrete move commands for the total distance we're meant to move
+            instructions.append((direction, distance))
+
+            # and move the pointer
+            pointer += (direction * distance)
+            maxX = max(pointer.x, maxX)
+            maxY = max(pointer.y, maxY)
+            minX = min(pointer.x, minX)
+            minY = min(pointer.y, minY)
+
+        # figure out the max size of the grid, since grid coords can't go negative
+        width = max(maxX + abs(minX), maxY + abs(minY)) + 1
+        # and make the start offset the minX, minY so that we know we can always reach the edge safely
+        startOffset = Int2((minX, minY))
+
+        # then return that width, and the pre-parsed instructions
+        return width, startOffset, instructions
 
     def SolvePartOne(self, data=None):
         """
@@ -273,7 +383,19 @@ class Day09Solver(ProblemSolver):
         :returns: The solution to today's challenge
         """
         if not data:
-            data = self.processed
+            data = copy.deepcopy(self.processed)
+
+        width, startOffset, instructions = data
+        # populate the grid
+
+        rope = Rope(length=2, start=startOffset)
+        grid = RopeGrid(width, rope)
+
+        for direction, distance in instructions:
+            for d in range(distance):
+                grid.moveRope(direction)
+
+        return grid.count(1)
 
     def SolvePartTwo(self, data=None):
         """
@@ -282,7 +404,19 @@ class Day09Solver(ProblemSolver):
         :returns: The solution to part two of today's challenge
         """
         if not data:
-            data = self.processed
+            data = copy.deepcopy(self.processed)
+
+        width, startOffset, instructions = data
+        
+        # populate the grid
+        rope = Rope(length=10, start=startOffset)
+        grid = RopeGrid(width, rope)
+
+        for direction, distance in instructions:
+            for d in range(distance):
+                grid.moveRope(direction)
+
+        return grid.count(1)
 
 
 if __name__ == '__main__':
