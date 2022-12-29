@@ -407,7 +407,7 @@ class Day09Solver(ProblemSolver):
             data = copy.deepcopy(self.processed)
 
         width, startOffset, instructions = data
-        
+
         # populate the grid
         rope = Rope(length=10, start=startOffset)
         grid = RopeGrid(width, rope)
