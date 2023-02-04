@@ -6,6 +6,29 @@ import math
 import functools
 import operator
 
+def add(a, b=None):
+    """
+    Adds two numbers together, if a second number is not supplied, the number will be added to itself
+    :param a:
+    :param b:
+    :return:
+    """
+    if not b:
+        b = a
+    return a + b
+
+
+def mul(a, b=None):
+    """
+    Multiplies two numbers together, if a second number is not supplied, the number will be added to itself
+    :param a:
+    :param b:
+    :return:
+    """
+    if not b:
+        b = a
+    return a * b
+
 def saturate(value):
     """
     Saturates a value, so it is only ever between 0 and 1
